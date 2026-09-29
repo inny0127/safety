@@ -1,10 +1,10 @@
-// Render poster.html to a vector PDF (A2) and/or a PNG preview with the preinstalled Chromium.
+// Render poster.html to a vector PDF (A3) and/or a PNG preview with the preinstalled Chromium.
 //   PDF=out.pdf node render.js
 //   PNG=out.png SCALE=0.5 [CLIP=x,y,w,h] node render.js
 const { chromium } = require('playwright');
 const path = require('path');
 
-const W = 1587.4, H = 2245.04; // 420mm x 594mm at 96dpi
+const W = 1122.52, H = 1587.4; // A3: 297mm x 420mm at 96dpi
 
 (async () => {
   const browser = await chromium.launch();
@@ -20,7 +20,7 @@ const W = 1587.4, H = 2245.04; // 420mm x 594mm at 96dpi
     await page.screenshot({ path: process.env.PNG, clip });
   }
   if (process.env.PDF) {
-    await page.pdf({ path: process.env.PDF, width: '420mm', height: '594mm', printBackground: true,
+    await page.pdf({ path: process.env.PDF, width: '297mm', height: '420mm', printBackground: true,
       margin: { top: 0, right: 0, bottom: 0, left: 0 }, preferCSSPageSize: true });
   }
   await browser.close();

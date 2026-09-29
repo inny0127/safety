@@ -72,17 +72,19 @@ def illustration_svg():
     road = (f'<rect x="-10" y="{f(y_far)}" width="{W + 20}" height="{f(y_near - y_far)}" fill="{ROADC}"/>'
             f'<rect x="-10" y="{f(y_far)}" width="{W + 20}" height="2" fill="{INK}" opacity=".18"/>')
     zx2 = X_REAR + 2
-    zone = f'<rect x="-10" y="{f(y_far + 10)}" width="{f(zx2 + 10)}" height="{f(y_near - y_far - 16)}" fill="{ACC}"/>'
-    hatch = ''.join(f'<line x1="{f(x)}" y1="{f(y_near)}" x2="{f(x + (y_near - y_far))}" y2="{f(y_far)}" '
-                    f'stroke="{ON}" stroke-width="1.5" opacity=".18"/>' for x in range(-120, int(zx2), 15))
-    zone += (f'<clipPath id="zc"><rect x="-10" y="{f(y_far + 10)}" width="{f(zx2 + 10)}" height="{f(y_near - y_far - 16)}"/></clipPath>'
-             f'<g clip-path="url(#zc)">{hatch}</g>')
-    # label + reversing arrow inside the zone
-    s_top, s_bot = y_far + 10, y_near - 6
-    zone += f'<text x="{f(zx2 - 24)}" y="{f(s_bot - 22)}" class="zl" text-anchor="end">후방 사각지대</text>'
-    ay = s_top + 30
-    zone += (f'<path d="M{f(zx2 - 24)},{f(ay)} L{f(zx2 - 250)},{f(ay)}" stroke="{ON}" stroke-width="6"/>'
-             f'<path d="M{f(zx2 - 232)},{f(ay - 15)} L{f(zx2 - 262)},{f(ay)} L{f(zx2 - 232)},{f(ay + 15)} Z" fill="{ON}"/>')
+    # blind zone: trapezoid that starts at the bus footprint and widens toward the left edge
+    yg = Y_GROUND
+    zpts = [(zx2, yg - 52), (zx2, yg + 30), (-10, yg + 74), (-10, yg - 100)]
+    zp = ' '.join(f'{f(x)},{f(y)}' for x, y in zpts)
+    zone = f'<polygon points="{zp}" fill="{ACC}"/>'
+    hatch = ''.join(f'<line x1="{f(x)}" y1="{f(yg + 60)}" x2="{f(x + 150)}" y2="{f(yg - 90)}" '
+                    f'stroke="{ON}" stroke-width="1.5" opacity=".18"/>' for x in range(-180, int(zx2), 15))
+    zone += f'<clipPath id="zc"><polygon points="{zp}"/></clipPath><g clip-path="url(#zc)">{hatch}</g>'
+    # reversing arrow and label, set where the zone is widest
+    ay = yg - 44
+    zone += (f'<path d="M{f(zx2 - 34)},{f(ay)} L{f(58)},{f(ay)}" stroke="{ON}" stroke-width="6"/>'
+             f'<path d="M{f(64)},{f(ay - 15)} L{f(34)},{f(ay)} L{f(64)},{f(ay + 15)} Z" fill="{ON}"/>')
+    zone += f'<text x="30" y="{f(yg + 28)}" class="zl">후방 사각지대</text>'
 
     bus_g = f'<g transform="translate({TX},{TY}) scale({K})">{B.bus(people=B.people())}</g>'
     gx, gy = GUIDE_AT
@@ -131,7 +133,7 @@ ROLES = [
 
 
 def page():
-    ff = [('BH', 'BlackHanSans-Regular.ttf', 400),
+    ff = [('BH', 'BlackHanSans-Regular.ttf', 400), ('GS', 'GasoekOne-Regular.ttf', 400), ('DH', 'DoHyeon-Regular.ttf', 400),
           ('GA', 'GothicA1-Bold.ttf', 700), ('GA', 'GothicA1-ExtraBold.ttf', 800), ('GA', 'GothicA1-Black.ttf', 900)]
     fonts = ''.join(f"@font-face{{font-family:'{n}';src:url('fonts/{p}');font-weight:{w};}}\n" for n, p, w in ff)
     cols = ''.join(
@@ -139,21 +141,22 @@ def page():
         for name, desc, rules in ROLES)
     css = f'''
 {fonts}
-@page {{ size: 420mm 594mm; margin: 0; }}
+@page {{ size: 297mm 420mm; margin: 0; }}
 * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-html, body {{ width: 420mm; height: 594mm; background: {BG}; }}
+html, body {{ width: 297mm; height: 420mm; overflow: hidden; background: {BG}; }}
+.page {{ width: 297mm; height: 420mm; overflow: hidden; }}
 body {{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
-.poster {{ position: relative; width: 420mm; height: 594mm; overflow: hidden; background: {BG}; color: {INK};
+.poster {{ transform: scale(0.707142857); transform-origin: 0 0; position: relative; width: 420mm; height: 594mm; overflow: hidden; background: {BG}; color: {INK};
   font-family: 'GA', sans-serif; word-break: keep-all; }}
 .fig {{ position: absolute; left: 0; top: 0; }}
-.fig .flag {{ font: 400 40px 'BH'; fill: {INK}; }}
+.fig .flag {{ font: 400 44px 'DH'; fill: {INK}; }}
 .fig .zl {{ font: 400 46px 'BH'; fill: {ON}; }}
 
 h1 {{ position: absolute; left: {M - 10}px; top: 64px; font: 400 236px/1.0 'BH'; letter-spacing: -0.015em; word-spacing: -0.12em; }}
 h1 em {{ font-style: normal; color: {HL}; }}
 
 .stat {{ position: absolute; left: {M}px; top: 596px; }}
-.stat b {{ display: block; font: 400 214px/0.9 'BH'; color: {HL}; letter-spacing: -0.02em; }}
+.stat b {{ display: block; font: 400 196px/0.9 'GS'; color: {HL}; letter-spacing: -0.02em; }}
 .stat b small {{ font-size: 128px; margin-left: 6px; }}
 .stat span {{ display: block; margin-top: 16px; font: 700 22px/1.45 'GA'; }}
 .lede {{ position: absolute; left: 808.7px; top: 606px; width: 700px; font: 700 33px/1.5 'GA'; letter-spacing: -0.03em; }}
@@ -161,13 +164,13 @@ h1 em {{ font-style: normal; color: {HL}; }}
 
 .cols {{ position: absolute; left: {M}px; right: {M}px; top: {Y_COLS}px; display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 30px; }}
 .col {{ border-top: 5px solid {INK}; padding-top: 16px; }}
-.col h2 {{ font: 400 60px/1 'BH'; }}
+.col h2 {{ font: 400 68px/1 'DH'; letter-spacing: -0.01em; }}
 .col .d {{ margin-top: 12px; font: 800 21px/1.4 'GA'; letter-spacing: -0.02em; }}
 .col ul {{ list-style: none; margin-top: 18px; }}
 .col li {{ border-top: 1.5px solid rgba(17,18,16,.35); padding: 12px 0 13px; font: 700 25px/1.38 'GA'; letter-spacing: -0.04em; text-wrap: balance; }}
 
 .band {{ position: absolute; left: 0; right: 0; top: {Y_BAND}px; bottom: 0; background: {ACC}; color: {ON}; }}
-.band p {{ position: absolute; left: {M - 4}px; right: {M}px; top: 50%; transform: translateY(-54%); font: 400 88px/1 'BH'; letter-spacing: -0.02em; word-spacing: -0.1em; white-space: nowrap; }}
+.band p {{ position: absolute; left: {M - 4}px; right: {M}px; top: 50%; transform: translateY(-54%); font: 400 70px/1 'GS'; letter-spacing: 0.01em; word-spacing: 0.05em; white-space: nowrap; }}
 '''
     return f'''<!doctype html>
 <html lang="ko">
@@ -177,14 +180,14 @@ h1 em {{ font-style: normal; color: {HL}; }}
 <style>{css}</style>
 </head>
 <body>
-<div class="poster">
+<div class="page"><div class="poster">
   <h1>한 대의 차량,<br>네 명의 <em>안전관</em>.</h1>
   <div class="stat"><b>34<small>%</small></b><span>군 안전사고 사망자 중 차량사고 비율<br>2010~2019년, 사망 원인 1위</span></div>
   <p class="lede">안전사고로 숨진 장병 <strong>세 명 중 한 명</strong>은<br>차량사고로 목숨을 잃었습니다.<br>차량 한 대에는 네 개의 자리가 있고,<br>자리마다 지켜야 할 임무가 있습니다.</p>
   {illustration_svg()}
   <div class="cols">{cols}</div>
   <div class="band"><p>선탑자는 승객이 아니라 안전관입니다.</p></div>
-</div>
+</div></div>
 </body>
 </html>
 '''
