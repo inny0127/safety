@@ -78,7 +78,12 @@ def door():
 
 
 def wheel(cx, cy):
-    g = [f'<circle cx="{cx}" cy="{cy}" r="{R_TIRE}" fill="{C["tire"]}"/>',
+    gy = cy + R_TIRE
+    g = [f'<path d="M{cx - 78},{gy} C{cx - 50},{gy - 7} {cx - 10},{gy - 6} {cx + 32},{gy} '
+         f'C{cx + 4},{gy + 2} {cx - 40},{gy + 2} {cx - 78},{gy} Z" fill="#000" opacity=".55"/>',
+         f'<circle cx="{cx}" cy="{cy}" r="{R_TIRE}" fill="{C["tire"]}"/>',
+         f'<path d="M{cx - 24},{gy - 4} C{cx - 26},{gy - 1} {cx - 22},{gy} {cx - 16},{gy} L{cx + 16},{gy} '
+         f'C{cx + 22},{gy} {cx + 26},{gy - 1} {cx + 24},{gy - 4} Z" fill="{C["tire"]}"/>',
          f'<circle cx="{cx}" cy="{cy}" r="{R_TIRE - 9}" fill="none" stroke="#1E2021" stroke-width="3"/>',
          f'<circle cx="{cx}" cy="{cy}" r="42" fill="{C["rim"]}"/>',
          f'<circle cx="{cx}" cy="{cy}" r="42" fill="none" stroke="#6F7477" stroke-width="3"/>',
@@ -101,15 +106,8 @@ def bus(people=''):
     # ground shadow
     # cast shadow as in the reference photo: a band under the body, reaching a little past the rear,
     # soft fringe first, then the core, then dark contact patches where the tyres meet the ground
-    g.append(f'<path d="M124,{GROUND - 80} L1150,{GROUND - 74} C1162,{GROUND - 60} 1164,{GROUND - 36} 1150,{GROUND - 24} C1100,{GROUND - 18} 1060,{GROUND - 14} 1040,{GROUND - 6} '
-             f'L940,{GROUND - 4} C700,{GROUND - 18} 520,{GROUND - 20} 470,{GROUND - 6} L350,{GROUND - 4} '
-             f'C250,{GROUND - 20} 150,{GROUND - 24} 70,{GROUND - 28} C62,{GROUND - 32} 60,{GROUND - 38} 64,{GROUND - 44} Z" fill="#000" opacity=".16"/>')
-    g.append(f'<path d="M126,{GROUND - 76} L1140,{GROUND - 72} C1150,{GROUND - 60} 1152,{GROUND - 42} 1140,{GROUND - 32} C1100,{GROUND - 28} 1070,{GROUND - 24} 1050,{GROUND - 14} '
-             f'L940,{GROUND - 12} C720,{GROUND - 30} 540,{GROUND - 32} 470,{GROUND - 14} L350,{GROUND - 12} '
-             f'C260,{GROUND - 30} 170,{GROUND - 34} 92,{GROUND - 36} C84,{GROUND - 40} 82,{GROUND - 44} 86,{GROUND - 50} Z" fill="#000" opacity=".30"/>')
-    for cx in (408, 998):
-        g.append(f'<path d="M{cx - 74},{GROUND + 1} C{cx - 40},{GROUND - 5} {cx + 40},{GROUND - 5} {cx + 78},{GROUND + 1} '
-                 f'C{cx + 40},{GROUND + 4} {cx - 40},{GROUND + 4} {cx - 74},{GROUND + 1} Z" fill="#000" opacity=".45"/>')
+    g.append(f'<path d="M118,{GROUND - 84} L1148,{GROUND - 80} C1158,{GROUND - 60} 1160,{GROUND - 42} 1148,{GROUND - 24} L1086,{GROUND - 16} C1072,{GROUND - 10} 1060,{GROUND - 2} 1040,{GROUND} L930,{GROUND} C906,{GROUND - 10} 892,{GROUND - 18} 872,{GROUND - 20} L508,{GROUND - 22} C490,{GROUND - 26} 478,{GROUND - 8} 460,{GROUND} L350,{GROUND} C326,{GROUND - 10} 312,{GROUND - 16} 292,{GROUND - 22} C220,{GROUND - 26} 150,{GROUND - 28} 84,{GROUND - 28} C76,{GROUND - 40} 74,{GROUND - 44} 78,{GROUND - 50} Z" fill="#000" opacity=".16"/>')
+    g.append(f'<path d="M126,{GROUND - 76} L1140,{GROUND - 72} C1150,{GROUND - 60} 1152,{GROUND - 42} 1140,{GROUND - 32} L1078,{GROUND - 24} C1064,{GROUND - 10} 1052,{GROUND - 2} 1032,{GROUND} L930,{GROUND} C914,{GROUND - 10} 900,{GROUND - 26} 880,{GROUND - 28} L500,{GROUND - 30} C482,{GROUND - 26} 470,{GROUND - 8} 452,{GROUND} L350,{GROUND} C334,{GROUND - 10} 320,{GROUND - 24} 300,{GROUND - 30} C220,{GROUND - 34} 150,{GROUND - 36} 92,{GROUND - 36} C84,{GROUND - 40} 82,{GROUND - 44} 86,{GROUND - 50} Z" fill="#000" opacity=".32"/>')
     # wheels behind the body (arches cut the body)
     g.append('<clipPath id="busBody"><path d="' + body_outline() + '"/></clipPath>')
     g.append(f'<path d="M912,506 A86,86 0 0 1 1084,506 Z" fill="{C["frame"]}"/>')
@@ -157,13 +155,14 @@ def bus(people=''):
     g.append(f'<rect x="1208" y="256" width="6" height="52" rx="3" fill="#3A4045"/>')
     # rear: tail lamp, flap
     g.append(f'<path d="M104,393 L120,393 C124,393 125,396 125,400 L125,440 C125,444 123,446 119,446 L104,446 Z" fill="{C["lamp"]}"/>')
-    # mud flaps: rubber sheet on a small bracket, hanging just behind each tyre, trailing slightly backwards
-    for bx, top, bot, w in ((326, 486, 566, 17), (912, 500, 548, 13)):
-        g.append(f'<rect x="{bx - 3}" y="{top - 8}" width="{w + 8}" height="9" rx="2" fill="#4A4F52"/>')
-        g.append(f'<path d="M{bx},{top} L{bx + w},{top} L{bx + w - 5},{bot - 5} C{bx + w - 6},{bot} {bx + w - 9},{bot + 1} {bx + w - 12},{bot + 1} '
-                 f'L{bx - 7},{bot + 2} C{bx - 10},{bot + 2} {bx - 11},{bot - 1} {bx - 10},{bot - 5} Z" fill="#1E2123"/>')
-        g.append(f'<path d="M{bx + w - 2},{top + 2} L{bx + w - 6},{bot - 6}" stroke="#474C50" stroke-width="2.5" stroke-linecap="round"/>')
-        g.append(f'<path d="M{bx + 2},{top + 10} L{bx + w - 3},{top + 10} M{bx + 1},{top + 18} L{bx + w - 4},{top + 18}" stroke="#2C3033" stroke-width="1.5"/>')
+    # mud flaps: dusty rubber sheet hung from under the skirt behind each tyre; the lower end kicks back
+    for x0, top, bot, w in ((322, 497, 568, 19), (910, 505, 552, 15)):
+        x1 = x0 + w
+        g.append(f'<path d="M{x0},{top} L{x1},{top} L{x1 - 1},{bot - 30} C{x1 - 2},{bot - 12} {x1 - 7},{bot - 2} {x0 + 1},{bot + 1} '
+                 f'L{x0 - 7},{bot + 2} C{x0 - 4},{bot - 8} {x0 - 2},{bot - 20} {x0 - 1},{bot - 32} Z" fill="#55595C"/>')
+        g.append(f'<path d="M{x1 - 1},{top} L{x1 - 2},{bot - 30} C{x1 - 3},{bot - 12} {x1 - 8},{bot - 3} {x0 + 1},{bot}" fill="none" stroke="#35393C" stroke-width="3"/>')
+        g.append(f'<path d="M{x0 + 2},{top + 4} L{x0 + 1},{bot - 32}" stroke="#71767A" stroke-width="2" stroke-linecap="round"/>')
+        g.append(f'<rect x="{x0 - 1}" y="{top - 2}" width="{w + 2}" height="5" fill="#1B1E20"/>')
     # fuel / battery hatch
     g.append(f'<rect x="854" y="455" width="36" height="26" rx="4" fill="none" stroke="{C["lower_sh"]}" stroke-width="2"/>')
     return '\n'.join(g)
