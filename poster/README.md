@@ -1,6 +1,7 @@
 # 차량 안전사고 예방 포스터 — 한 대의 차량, 네 명의 안전관
 
 - `safety-poster-A3.pdf`: 출력용 (A3, 오렌지 바탕)
+- `safety-poster-A4.pdf`: 같은 디자인을 A4(210×297mm)로 축소한 판
 - `safety-poster-preview.png`: 미리보기
 
 A3(297×420mm) 한 장, 전부 벡터(이미지 없음), 폰트 임베드. 크게 출력해도 선명하다.
