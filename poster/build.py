@@ -23,6 +23,11 @@ PALETTES = {
     # bg: 바탕 / acc: 사각지대·하단 띠·유도봉 / on: acc 위의 글자·선 / hl: 강조 글자
     'orange': dict(BG='#FF5A1F', ACC=INK, ON='#FF5A1F', HL='#FFFFFF', ROADC='#EF5118', GUIDE_STRIPE='#FF5A1F',
                    BELT='#FF5A1F', OUTLINE=None, BATON='#FFFFFF', TEXT=INK, RULE='rgba(17,18,16,.35)', GUIDE_COL='#0D0F10', GUIDE_VEST='#EDEDE8', ZONE='fill', EXTRA=''),
+    # 사무용 프린터용: 형광에 가까운 오렌지는 인쇄 색역 밖이라 탁해진다.
+    # 마젠타+노랑만으로 나오는 조금 밝고 노란 쪽 오렌지로 옮기고, 글자는 순수 검정(K 100%)으로.
+    'print':  dict(BG='#FF7A12', ACC='#000000', ON='#FF7A12', HL='#FFFFFF', ROADC='#F46A0C', GUIDE_STRIPE='#FF7A12',
+                   BELT='#FF7A12', OUTLINE=None, BATON='#FFFFFF', TEXT='#000000', RULE='rgba(0,0,0,.45)',
+                   GUIDE_COL='#000000', GUIDE_VEST='#FFFFFF', ZONE='fill', EXTRA=''),
     'gray':   dict(BG='#C4C5C0', ACC='#FF4D1A', ON=INK, HL='#FF4D1A', ROADC='#B4B5B0', GUIDE_STRIPE='#FF4D1A',
                    BELT='#FF4D1A', OUTLINE=None, BATON='#FFFFFF', TEXT=INK, RULE='rgba(17,18,16,.35)', GUIDE_COL='#0D0F10', GUIDE_VEST='#EDEDE8', ZONE='fill', EXTRA=''),
     # 흑백 인쇄용: 흰 종이 + 먹. 강조는 색 대신 검은 반전 블록, 안전벨트는 흰색으로 띄운다.
@@ -233,6 +238,8 @@ if __name__ == '__main__':
         html = page()
         if name == 'bw':
             html = to_gray(html)
+        if name == 'print':
+            html = html.replace('#111210', '#000000').replace('#0D0F10', '#000000')
         out = ROOT / ('poster.html' if name == 'orange' else f'poster-{name}.html')
         out.write_text(html, encoding='utf-8')
         print('wrote', out.name)

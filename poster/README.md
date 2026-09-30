@@ -3,6 +3,7 @@
 | 판 | A3 | A4 |
 |---|---|---|
 | 오렌지 바탕 (기본) | `safety-poster-A3.pdf` | `safety-poster-A4.pdf` |
+| 오렌지 · 프린터용 | `safety-poster-A3-print.pdf` | `safety-poster-A4-print.pdf` |
 | 회색 바탕 | `safety-poster-A3-gray.pdf` | `safety-poster-A4-gray.pdf` |
 | 흑백 인쇄용 | `safety-poster-A3-bw.pdf` | `safety-poster-A4-bw.pdf` |
 
@@ -28,3 +29,6 @@ NODE_PATH=$(npm root -g) PDF=safety-poster-A3.pdf PNG=safety-poster-preview.png 
 - 통계: 군 안전사고 사망자 원인별 현황(2010~2019), 차량사고 34%
 - 버스 형태 참고 사진: "Juulchin Tourism Corp 10.JPG", Wikimedia Commons, 퍼블릭 도메인. 사진 자체는 포스터에 들어가지 않는다.
 - 폰트: Black Han Sans, Gasoek One, Do Hyeon, Gothic A1. 모두 SIL OFL (`fonts/OFL-*.txt`)
+
+## 프린터용 오렌지판
+사무용 프린터는 화면의 형광빛 오렌지(#FF5A1F)를 잉크로 못 내서 탁하게 뽑는다. 프린터용은 마젠타+노랑만으로 나오는 조금 밝고 노란 오렌지(#FF7A12)를 쓰고, 글자는 순수 검정(#000000)이라 검정 잉크 한 가지로 선명하게 찍힌다.
