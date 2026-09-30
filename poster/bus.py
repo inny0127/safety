@@ -15,6 +15,7 @@ C = dict(
 )
 
 GROUND = 577
+OUTLINE = None          # set to a colour to stroke the body silhouette (B&W print)
 WHEELS = ((408, 508), (998, 508))
 R_TIRE = 69
 
@@ -165,6 +166,8 @@ def bus(people=''):
         g.append(f'<rect x="{x0 - 1}" y="{top - 2}" width="{w + 2}" height="5" fill="#1B1E20"/>')
     # fuel / battery hatch
     g.append(f'<rect x="854" y="455" width="36" height="26" rx="4" fill="none" stroke="{C["lower_sh"]}" stroke-width="2"/>')
+    if OUTLINE:
+        g.append(f'<path d="{body_outline()}" fill="none" stroke="{OUTLINE}" stroke-width="3"/>')
     return '\n'.join(g)
 
 

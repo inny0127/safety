@@ -1,8 +1,12 @@
 # 차량 안전사고 예방 포스터 — 한 대의 차량, 네 명의 안전관
 
-- `safety-poster-A3.pdf`: 출력용 (A3, 오렌지 바탕)
-- `safety-poster-A4.pdf`: 같은 디자인을 A4(210×297mm)로 축소한 판
-- `safety-poster-preview.png`: 미리보기
+| 판 | A3 | A4 |
+|---|---|---|
+| 오렌지 바탕 (기본) | `safety-poster-A3.pdf` | `safety-poster-A4.pdf` |
+| 회색 바탕 | `safety-poster-A3-gray.pdf` | `safety-poster-A4-gray.pdf` |
+| 흑백 인쇄용 | `safety-poster-A3-bw.pdf` | `safety-poster-A4-bw.pdf` |
+
+미리보기: `safety-poster-preview*.png`. 흑백판은 강조를 색 대신 검은 반전 블록으로 바꾸고, 안전벨트를 흰색으로, 버스에 윤곽선을 넣었다. 남은 색은 모두 같은 밝기의 회색으로 바꾼다.
 
 A3(297×420mm) 한 장, 전부 벡터(이미지 없음), 폰트 임베드. 크게 출력해도 선명하다.
 
@@ -15,7 +19,7 @@ A3(297×420mm) 한 장, 전부 벡터(이미지 없음), 폰트 임베드. 크�
 ## 다시 만들기
 ```sh
 ./fetch_fonts.sh      # 문구를 바꿀 때만 필요 (저장소 폰트는 현재 문구에 맞춘 서브셋)
-python3 build.py      # poster.html 생성
+python3 build.py      # poster.html, poster-gray.html, poster-bw.html 생성
 NODE_PATH=$(npm root -g) PDF=safety-poster-A3.pdf PNG=safety-poster-preview.png SCALE=1.4142 node render.js
 ```
 색은 `build.py`의 `PALETTES`, 버스 색은 `bus.py`의 `C`에서 바꾼다.

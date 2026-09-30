@@ -6,8 +6,10 @@
 """
 import math
 import pathlib
+import re
 
 ROOT = pathlib.Path(__file__).parent
+import bus as B
 W, H = 1587.4, 2245.04            # 420 x 594 mm (CSS px)
 M = 84
 
@@ -19,18 +21,45 @@ BODY = '#2B2C29'
 
 PALETTES = {
     # bg: 바탕 / acc: 사각지대·하단 띠·유도봉 / on: acc 위의 글자·선 / hl: 강조 글자
-    'orange': dict(BG='#FF5A1F', ACC=INK, ON='#FF5A1F', HL='#FFFFFF', ROADC='#EF5118', GUIDE_STRIPE='#FF5A1F'),
+    'orange': dict(BG='#FF5A1F', ACC=INK, ON='#FF5A1F', HL='#FFFFFF', ROADC='#EF5118', GUIDE_STRIPE='#FF5A1F',
+                   BELT='#FF5A1F', OUTLINE=None, BATON='#FFFFFF', EXTRA=''),
+    'gray':   dict(BG='#C4C5C0', ACC='#FF4D1A', ON=INK, HL='#FF4D1A', ROADC='#B4B5B0', GUIDE_STRIPE='#FF4D1A',
+                   BELT='#FF4D1A', OUTLINE=None, BATON='#FFFFFF', EXTRA=''),
+    # 흑백 인쇄용: 흰 종이 + 먹. 강조는 색 대신 검은 반전 블록, 안전벨트는 흰색으로 띄운다.
+    'bw':     dict(BG='#FFFFFF', ACC=INK, ON='#FFFFFF', HL=INK, ROADC='#E4E4E1', GUIDE_STRIPE=INK,
+                   BELT='#FFFFFF', OUTLINE=INK, BATON=INK,
+                   EXTRA='''
+h1 em { background: #111210; color: #FFFFFF; padding: 0 0.1em 0.04em; margin: 0 0.02em; }
+.lede strong { display: inline-block; line-height: 1.3; background: #111210; color: #FFFFFF; padding: 1px 8px 3px; }
+.stat b { -webkit-text-stroke: 0; }
+.col { border-top-width: 8px; }
+'''),
 }
-BG = ACC = ON = HL = ROADC = GUIDE_STRIPE = None
+BG = ACC = ON = HL = ROADC = GUIDE_STRIPE = EXTRA = None
 
 
 def use(name):
-    global BG, ACC, ON, HL, ROADC, GUIDE_STRIPE
+    global BG, ACC, ON, HL, ROADC, GUIDE_STRIPE, EXTRA
     pal = PALETTES[name]
-    BG, ACC, ON, HL, ROADC, GUIDE_STRIPE = (pal[k] for k in ('BG', 'ACC', 'ON', 'HL', 'ROADC', 'GUIDE_STRIPE'))
+    BG, ACC, ON, HL, ROADC, GUIDE_STRIPE, EXTRA = (pal[k] for k in ('BG', 'ACC', 'ON', 'HL', 'ROADC', 'GUIDE_STRIPE', 'EXTRA'))
+    B.C['belt'] = pal['BELT']
+    B.OUTLINE = pal['OUTLINE']
+    global BATON
+    BATON = pal['BATON']
+
+
+def to_gray(html):
+    """map every remaining hex colour to its luminance grey (B&W print safety net)"""
+    def g(m):
+        h = m.group(1)
+        if len(h) == 3:
+            h = ''.join(c * 2 for c in h)
+        r, gg, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
+        y = round(0.2126 * r + 0.7152 * gg + 0.0722 * b)
+        return '#' + f'{y:02X}' * 3
+    return re.sub(r'#([0-9A-Fa-f]{6}|[0-9A-Fa-f]{3})\b', g, html)
 
 # ---------------------------------------------------------------- illustration placement
-import bus as B
 
 K = 1.0                 # reference-photo px -> poster px
 TX, TY = 268, 879       # bus origin on the poster
@@ -88,7 +117,7 @@ def illustration_svg():
 
     bus_g = f'<g transform="translate({TX},{TY}) scale({K})">{B.bus(people=B.people())}</g>'
     gx, gy = GUIDE_AT
-    guide = B.guide(gx, gy, GUIDE_S, stripe=GUIDE_STRIPE)
+    guide = B.guide(gx, gy, GUIDE_S, stripe=GUIDE_STRIPE, baton=BATON)
 
     # labels
     px, py = P(B.PASSENGERS[2], 250 - 8)
@@ -177,7 +206,7 @@ h1 em {{ font-style: normal; color: {HL}; }}
 <head>
 <meta charset="utf-8">
 <title>한 대의 차량, 네 명의 안전관</title>
-<style>{css}</style>
+<style>{css}{EXTRA}</style>
 </head>
 <body>
 <div class="page"><div class="poster">
@@ -196,6 +225,9 @@ h1 em {{ font-style: normal; color: {HL}; }}
 if __name__ == '__main__':
     for name in PALETTES:
         use(name)
-        out = ROOT / 'poster.html'
-        out.write_text(page(), encoding='utf-8')
+        html = page()
+        if name == 'bw':
+            html = to_gray(html)
+        out = ROOT / ('poster.html' if name == 'orange' else f'poster-{name}.html')
+        out.write_text(html, encoding='utf-8')
         print('wrote', out.name)
