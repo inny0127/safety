@@ -32,6 +32,16 @@ PALETTES = {
     'lowink': dict(BG='#FFFFFF', ACC='#FF7A12', ON='#000000', HL='#FF6A00', ROADC='#EDEDED', GUIDE_STRIPE='#FF7A12',
                    BELT='#FF7A12', OUTLINE='#000000', BATON='#000000', TEXT='#000000', RULE='rgba(0,0,0,.4)',
                    GUIDE_COL='#000000', GUIDE_VEST='#FFFFFF', ZONE='fill', EXTRA=''),
+    # 원색판: 프린터 잉크 두 가지(Y 100%, K)만. #FFF200은 PDF 후처리에서 CMYK 0/0/100/0으로,
+    # 나머지 회색·검정은 K 한 가지로 바뀐다(cmyk.py).
+    'process': dict(BG='#FFFFFF', ACC='#FFF200', ON='#000000', HL='#000000', ROADC='#EDEDED', GUIDE_STRIPE='#BFBFBF',
+                   BELT='#FFF200', OUTLINE='#000000', BATON='#000000', TEXT='#000000', RULE='rgba(0,0,0,.4)',
+                   GUIDE_COL='#000000', GUIDE_VEST='#FFF200', ZONE='fill',
+                   EXTRA='''
+h1 em { background: #FFF200; color: #000000; padding: 0 0.1em 0.04em; margin: 0 0.02em; }
+.lede strong { display: inline-block; line-height: 1.3; background: #FFF200; color: #000000; padding: 1px 8px 3px; }
+.stat b { display: inline-block; background: #FFF200; padding: 14px 18px 4px; }
+'''),
     'gray':   dict(BG='#C4C5C0', ACC='#FF4D1A', ON=INK, HL='#FF4D1A', ROADC='#B4B5B0', GUIDE_STRIPE='#FF4D1A',
                    BELT='#FF4D1A', OUTLINE=None, BATON='#FFFFFF', TEXT=INK, RULE='rgba(17,18,16,.35)', GUIDE_COL='#0D0F10', GUIDE_VEST='#EDEDE8', ZONE='fill', EXTRA=''),
     # 흑백 인쇄용: 흰 종이 + 먹. 강조는 색 대신 검은 반전 블록, 안전벨트는 흰색으로 띄운다.
@@ -59,10 +69,12 @@ def use(name):
     BATON, TEXT, RULE, GUIDE_COL, GUIDE_VEST, ZONE = (pal[k] for k in ('BATON', 'TEXT', 'RULE', 'GUIDE_COL', 'GUIDE_VEST', 'ZONE'))
 
 
-def to_gray(html):
+def to_gray(html, keep=()):
     """map every remaining hex colour to its luminance grey (B&W print safety net)"""
     def g(m):
         h = m.group(1)
+        if '#' + h.upper() in keep:
+            return m.group(0)
         if len(h) == 3:
             h = ''.join(c * 2 for c in h)
         r, gg, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
@@ -242,6 +254,8 @@ if __name__ == '__main__':
         html = page()
         if name == 'bw':
             html = to_gray(html)
+        if name == 'process':
+            html = to_gray(html, keep=('#FFF200',))
         if name in ('print', 'lowink'):
             html = html.replace('#111210', '#000000').replace('#0D0F10', '#000000')
         out = ROOT / ('poster.html' if name == 'orange' else f'poster-{name}.html')

@@ -5,6 +5,7 @@
 | 오렌지 바탕 (기본) | `safety-poster-A3.pdf` | `safety-poster-A4.pdf` |
 | 오렌지 · 프린터용 | `safety-poster-A3-print.pdf` | `safety-poster-A4-print.pdf` |
 | 잉크 절약 (흰 바탕) | `safety-poster-A3-lowink.pdf` | `safety-poster-A4-lowink.pdf` |
+| 원색 2도 (노랑 Y + 검정 K, CMYK) | `safety-poster-A3-process.pdf` | `safety-poster-A4-process.pdf` |
 | 회색 바탕 | `safety-poster-A3-gray.pdf` | `safety-poster-A4-gray.pdf` |
 | 흑백 인쇄용 | `safety-poster-A3-bw.pdf` | `safety-poster-A4-bw.pdf` |
 
@@ -36,3 +37,11 @@ NODE_PATH=$(npm root -g) PDF=safety-poster-A3.pdf PNG=safety-poster-preview.png 
 
 ## 잉크 절약판
 잉크 상태가 나쁜 프린터에서는 넓은 색면이 흐리거나 줄무늬가 생긴다. 흰 바탕에 오렌지는 사각지대·하단 띠·강조 글자·안전벨트에만 써서 잉크 사용량을 오렌지 바탕의 약 1/3로 줄였다.
+
+## 원색 2도판 (CMYK)
+프린터 잉크를 섞지 않도록 노랑(Y 100%)과 검정(K) 두 가지 잉크만 쓴다. Chromium은 RGB PDF만 만들기 때문에
+`cmyk.py`가 PDF 안의 색 지정을 CMYK로 바꾼다(#FFF200 → 0/0/100/0, 회색·검정 → K만).
+```sh
+NODE_PATH=$(npm root -g) SRC=poster-process.html PDF=/tmp/rgb.pdf node render.js
+python3 cmyk.py /tmp/rgb.pdf safety-poster-A3-process.pdf
+```
