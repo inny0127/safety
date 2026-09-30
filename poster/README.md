@@ -4,6 +4,7 @@
 |---|---|---|
 | 오렌지 바탕 (기본) | `safety-poster-A3.pdf` | `safety-poster-A4.pdf` |
 | 오렌지 · 프린터용 | `safety-poster-A3-print.pdf` | `safety-poster-A4-print.pdf` |
+| 잉크 절약 (흰 바탕) | `safety-poster-A3-lowink.pdf` | `safety-poster-A4-lowink.pdf` |
 | 회색 바탕 | `safety-poster-A3-gray.pdf` | `safety-poster-A4-gray.pdf` |
 | 흑백 인쇄용 | `safety-poster-A3-bw.pdf` | `safety-poster-A4-bw.pdf` |
 
@@ -32,3 +33,6 @@ NODE_PATH=$(npm root -g) PDF=safety-poster-A3.pdf PNG=safety-poster-preview.png 
 
 ## 프린터용 오렌지판
 사무용 프린터는 화면의 형광빛 오렌지(#FF5A1F)를 잉크로 못 내서 탁하게 뽑는다. 프린터용은 마젠타+노랑만으로 나오는 조금 밝고 노란 오렌지(#FF7A12)를 쓰고, 글자는 순수 검정(#000000)이라 검정 잉크 한 가지로 선명하게 찍힌다.
+
+## 잉크 절약판
+잉크 상태가 나쁜 프린터에서는 넓은 색면이 흐리거나 줄무늬가 생긴다. 흰 바탕에 오렌지는 사각지대·하단 띠·강조 글자·안전벨트에만 써서 잉크 사용량을 오렌지 바탕의 약 1/3로 줄였다.
