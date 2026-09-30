@@ -222,7 +222,7 @@ def people():
     return '\n'.join(g)
 
 
-def guide(x, y, s=1.0, vest='#EDEDE8', stripe='#FF5A1F', baton='#FFFFFF', col='#0D0F10'):
+def guide(x, y, s=1.0, vest='#EDEDE8', stripe='#FF5A1F', baton='#FFFFFF', col='#0D0F10', glow=False):
     """ground guide (유도병) standing, facing right, signalling with a raised baton. (x, y) = feet."""
     body = (
         # back leg (trousers bloused into boots)
@@ -259,6 +259,7 @@ def guide(x, y, s=1.0, vest='#EDEDE8', stripe='#FF5A1F', baton='#FFFFFF', col='#
             f'<rect x="-22" y="-156" width="47" height="7" fill="{stripe}"/>'
             f'<rect x="-21" y="-136" width="45" height="7" fill="{col}"/>'
             f'<path d="{head}" fill="{col}"/><path d="{helmet}" fill="{col}"/>'
-            f'<path d="{arm_up}" fill="{col}"/><path d="{hand_up}" fill="{col}"/>'
+            f'<path d="{arm_up}" fill="{col}"/><path d="{hand_up}" fill="{col}"/>' +
+            (''.join(f'<circle cx="57" cy="-306" r="{r}" fill="#FFFFFF" opacity="{o}"/>' for r, o in ((46, .06), (30, .09), (18, .12))) if glow else '') +
             f'<rect x="44" y="-338" width="9" height="66" rx="4.5" fill="{baton}" transform="rotate(14 48 -272)"/>'
             f'</g>')

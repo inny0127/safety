@@ -22,20 +22,22 @@ BODY = '#2B2C29'
 PALETTES = {
     # bg: 바탕 / acc: 사각지대·하단 띠·유도봉 / on: acc 위의 글자·선 / hl: 강조 글자
     'orange': dict(BG='#FF5A1F', ACC=INK, ON='#FF5A1F', HL='#FFFFFF', ROADC='#EF5118', GUIDE_STRIPE='#FF5A1F',
-                   BELT='#FF5A1F', OUTLINE=None, BATON='#FFFFFF', EXTRA=''),
+                   BELT='#FF5A1F', OUTLINE=None, BATON='#FFFFFF', TEXT=INK, RULE='rgba(17,18,16,.35)', GUIDE_COL='#0D0F10', GUIDE_VEST='#EDEDE8', ZONE='fill', EXTRA=''),
     'gray':   dict(BG='#C4C5C0', ACC='#FF4D1A', ON=INK, HL='#FF4D1A', ROADC='#B4B5B0', GUIDE_STRIPE='#FF4D1A',
-                   BELT='#FF4D1A', OUTLINE=None, BATON='#FFFFFF', EXTRA=''),
+                   BELT='#FF4D1A', OUTLINE=None, BATON='#FFFFFF', TEXT=INK, RULE='rgba(17,18,16,.35)', GUIDE_COL='#0D0F10', GUIDE_VEST='#EDEDE8', ZONE='fill', EXTRA=''),
     # 흑백 인쇄용: 흰 종이 + 먹. 강조는 색 대신 검은 반전 블록, 안전벨트는 흰색으로 띄운다.
-    'bw':     dict(BG='#FFFFFF', ACC=INK, ON='#FFFFFF', HL=INK, ROADC='#E4E4E1', GUIDE_STRIPE=INK,
-                   BELT='#FFFFFF', OUTLINE=INK, BATON=INK,
+    # 흑백판: 밤 장면. '보이지 않는 곳'을 어둠 자체로 보여 준다.
+    'bw':     dict(BG='#0B0B0B', ACC='#F2F2F2', ON='#0B0B0B', HL='#F2F2F2', ROADC='#262626', GUIDE_STRIPE='#FFFFFF',
+                   BELT='#FFFFFF', OUTLINE=None, BATON='#FFFFFF', TEXT='#F2F2F2', RULE='rgba(242,242,242,.32)',
+                   GUIDE_COL='#6A6A6A', GUIDE_VEST='#2E2E2E', ZONE='void',
                    EXTRA='''
-h1 em { background: #111210; color: #FFFFFF; padding: 0 0.1em 0.04em; margin: 0 0.02em; }
-.lede strong { display: inline-block; line-height: 1.3; background: #111210; color: #FFFFFF; padding: 1px 8px 3px; }
-.stat b { -webkit-text-stroke: 0; }
+h1 em { background: #F2F2F2; color: #0B0B0B; padding: 0 0.1em 0.04em; margin: 0 0.02em; }
+.lede strong { display: inline-block; line-height: 1.3; background: #F2F2F2; color: #0B0B0B; padding: 1px 8px 3px; }
 .col { border-top-width: 8px; }
 '''),
 }
 BG = ACC = ON = HL = ROADC = GUIDE_STRIPE = EXTRA = None
+TEXT = RULE = GUIDE_COL = GUIDE_VEST = ZONE = BATON = None
 
 
 def use(name):
@@ -44,8 +46,8 @@ def use(name):
     BG, ACC, ON, HL, ROADC, GUIDE_STRIPE, EXTRA = (pal[k] for k in ('BG', 'ACC', 'ON', 'HL', 'ROADC', 'GUIDE_STRIPE', 'EXTRA'))
     B.C['belt'] = pal['BELT']
     B.OUTLINE = pal['OUTLINE']
-    global BATON
-    BATON = pal['BATON']
+    global BATON, TEXT, RULE, GUIDE_COL, GUIDE_VEST, ZONE
+    BATON, TEXT, RULE, GUIDE_COL, GUIDE_VEST, ZONE = (pal[k] for k in ('BATON', 'TEXT', 'RULE', 'GUIDE_COL', 'GUIDE_VEST', 'ZONE'))
 
 
 def to_gray(html):
@@ -91,8 +93,8 @@ def flag(label, tx, ty, y_label, side='right'):
         text = f'<text x="{f(tx + 12)}" y="{f(y_label)}" class="flag">{label}</text>'
     else:
         text = f'<text x="{f(tx - 12)}" y="{f(y_label)}" class="flag" text-anchor="end">{label}</text>'
-    return (f'<line x1="{f(tx)}" y1="{f(top)}" x2="{f(tx)}" y2="{f(ty)}" stroke="{INK}" stroke-width="2.2"/>'
-            f'<circle cx="{f(tx)}" cy="{f(ty)}" r="6" fill="{INK}" stroke="{WHITE}" stroke-width="2.5"/>' + text)
+    return (f'<line x1="{f(tx)}" y1="{f(top)}" x2="{f(tx)}" y2="{f(ty)}" stroke="{TEXT}" stroke-width="2.2"/>'
+            f'<circle cx="{f(tx)}" cy="{f(ty)}" r="6" fill="{TEXT}" stroke="{WHITE if TEXT == INK else INK}" stroke-width="2.5"/>' + text)
 
 
 def illustration_svg():
@@ -103,21 +105,24 @@ def illustration_svg():
     zx2 = X_REAR + 2
     # blind zone: trapezoid that starts at the bus footprint and widens toward the left edge
     yg = Y_GROUND
+    ZON = ON if ZONE == 'fill' else '#FFFFFF'
     zpts = [(zx2, yg - 52), (zx2, yg + 30), (-10, yg + 74), (-10, yg - 100)]
     zp = ' '.join(f'{f(x)},{f(y)}' for x, y in zpts)
-    zone = f'<polygon points="{zp}" fill="{ACC}"/>'
+    zone = f'<polygon points="{zp}" fill="{ACC if ZONE == "fill" else "#000000"}"/>'
+    if ZONE == 'void':
+        zone += f'<polyline points="{f(-10)},{f(yg - 100)} {f(zx2)},{f(yg - 52)} {f(zx2)},{f(yg + 30)} {f(-10)},{f(yg + 74)}" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-dasharray="14 9"/>'
     hatch = ''.join(f'<line x1="{f(x)}" y1="{f(yg + 60)}" x2="{f(x + 150)}" y2="{f(yg - 90)}" '
-                    f'stroke="{ON}" stroke-width="1.5" opacity=".18"/>' for x in range(-180, int(zx2), 15))
+                    f'stroke="{ZON}" stroke-width="1.5" opacity=".18"/>' for x in range(-180, int(zx2), 15))
     zone += f'<clipPath id="zc"><polygon points="{zp}"/></clipPath><g clip-path="url(#zc)">{hatch}</g>'
     # reversing arrow and label, set where the zone is widest
     ay = yg - 44
-    zone += (f'<path d="M{f(zx2 - 34)},{f(ay)} L{f(58)},{f(ay)}" stroke="{ON}" stroke-width="6"/>'
-             f'<path d="M{f(64)},{f(ay - 15)} L{f(34)},{f(ay)} L{f(64)},{f(ay + 15)} Z" fill="{ON}"/>')
+    zone += (f'<path d="M{f(zx2 - 34)},{f(ay)} L{f(58)},{f(ay)}" stroke="{ZON}" stroke-width="6"/>'
+             f'<path d="M{f(64)},{f(ay - 15)} L{f(34)},{f(ay)} L{f(64)},{f(ay + 15)} Z" fill="{ZON}"/>')
     zone += f'<text x="30" y="{f(yg + 28)}" class="zl">후방 사각지대</text>'
 
     bus_g = f'<g transform="translate({TX},{TY}) scale({K})">{B.bus(people=B.people())}</g>'
     gx, gy = GUIDE_AT
-    guide = B.guide(gx, gy, GUIDE_S, stripe=GUIDE_STRIPE, baton=BATON)
+    guide = B.guide(gx, gy, GUIDE_S, stripe=GUIDE_STRIPE, baton=BATON, col=GUIDE_COL, vest=GUIDE_VEST, glow=(ZONE == 'void'))
 
     # labels
     px, py = P(B.PASSENGERS[2], 250 - 8)
@@ -175,11 +180,11 @@ def page():
 html, body {{ width: 297mm; height: 420mm; overflow: hidden; background: {BG}; }}
 .page {{ width: 297mm; height: 420mm; overflow: hidden; }}
 body {{ -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
-.poster {{ transform: scale(0.707142857); transform-origin: 0 0; position: relative; width: 420mm; height: 594mm; overflow: hidden; background: {BG}; color: {INK};
+.poster {{ transform: scale(0.707142857); transform-origin: 0 0; position: relative; width: 420mm; height: 594mm; overflow: hidden; background: {BG}; color: {TEXT};
   font-family: 'GA', sans-serif; word-break: keep-all; }}
 .fig {{ position: absolute; left: 0; top: 0; }}
-.fig .flag {{ font: 400 44px 'DH'; fill: {INK}; }}
-.fig .zl {{ font: 400 46px 'BH'; fill: {ON}; }}
+.fig .flag {{ font: 400 44px 'DH'; fill: {TEXT}; }}
+.fig .zl {{ font: 400 46px 'BH'; fill: {ON if ZONE == 'fill' else '#FFFFFF'}; }}
 
 h1 {{ position: absolute; left: {M - 10}px; top: 64px; font: 400 236px/1.0 'BH'; letter-spacing: -0.015em; word-spacing: -0.12em; }}
 h1 em {{ font-style: normal; color: {HL}; }}
@@ -192,11 +197,11 @@ h1 em {{ font-style: normal; color: {HL}; }}
 .lede strong {{ font-weight: 900; color: {HL}; }}
 
 .cols {{ position: absolute; left: {M}px; right: {M}px; top: {Y_COLS}px; display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 30px; }}
-.col {{ border-top: 5px solid {INK}; padding-top: 16px; }}
+.col {{ border-top: 5px solid {TEXT}; padding-top: 16px; }}
 .col h2 {{ font: 400 68px/1 'DH'; letter-spacing: -0.01em; }}
 .col .d {{ margin-top: 12px; font: 800 21px/1.4 'GA'; letter-spacing: -0.02em; }}
 .col ul {{ list-style: none; margin-top: 18px; }}
-.col li {{ border-top: 1.5px solid rgba(17,18,16,.35); padding: 12px 0 13px; font: 700 25px/1.38 'GA'; letter-spacing: -0.04em; text-wrap: balance; }}
+.col li {{ border-top: 1.5px solid {RULE}; padding: 12px 0 13px; font: 700 25px/1.38 'GA'; letter-spacing: -0.04em; text-wrap: balance; }}
 
 .band {{ position: absolute; left: 0; right: 0; top: {Y_BAND}px; bottom: 0; background: {ACC}; color: {ON}; }}
 .band p {{ position: absolute; left: {M - 4}px; right: {M}px; top: 50%; transform: translateY(-54%); font: 400 70px/1 'GS'; letter-spacing: 0.01em; word-spacing: 0.05em; white-space: nowrap; }}
